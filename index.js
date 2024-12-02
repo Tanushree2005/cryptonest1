@@ -1,6 +1,6 @@
 const express = require('express'); // to call our express module
 const app = express();
-const PORT = 3003;
+const PORT = process.env.PORT || 3003;
 const mysql = require('mysql');
 const cors = require('cors');
 const {encrypt,decrypt}=require("./EncryptionHandler.js");
