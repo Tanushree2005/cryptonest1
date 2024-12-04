@@ -7,13 +7,12 @@ const {encrypt,decrypt}=require("./EncryptionHandler.js");
 const fs = require('fs');
 require('dotenv').config();
 const path = require('path'); 
-const sslPath = path.join(__dirname, process.env.SSL_CERT_PATH); 
+const sslPath = process.env.SSL_CERT_PATH;
 app.use(cors(
 ));
 app.use(express.json());
-let sslCa;
+
 try {
-    sslCa = fs.readFileSync(sslPath);
     console.log('SSL Certificate loaded successfully');
 } catch (error) {
     console.error('Error reading SSL certificate:', error);
@@ -26,7 +25,9 @@ const db = mysql.createConnection({
     database: 'defaultdb',
     port:15844,
     connectTimeout: 20000,
-    ssl: sslCa ? { ca: sslCa } : null, 
+    ssl:{  ca: fs.readFileSync(path.join(__dirname, process.env.SSL_CERT_PATH)),
+        rejectUnauthorized: false, 
+}
 });
 
 // Check MySQL connection
