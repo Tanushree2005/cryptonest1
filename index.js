@@ -4,14 +4,16 @@ const PORT =3003;
 const mysql = require('mysql');
 const cors = require('cors');
 const {encrypt,decrypt}=require("./EncryptionHandler.js");
-app.use(cors());
+app.use(cors(
+));
 app.use(express.json());
 // Create MySQL connection
 const db = mysql.createConnection({
-    user: 'root',
-    host: '127.0.0.1',
-    password: 'tanushree.mandavilli25',
-    database: 'password_manager',
+    user: 'avnadmin',
+    host: 'mysql-19e6ba64-mandavillitanushree-7351.e.aivencloud.com',
+    password: 'AVNS_7zgBuYFAJBS1yemvLyt',
+    database: 'defaultdb',
+    connectTimeout: 10000,
 });
 
 // Check MySQL connection
@@ -80,6 +82,6 @@ app.post('/decryptpass', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(process.env.PORT || PORT, () => {
     console.log(`The server is running on port ${PORT}`); // to check if the server is running
 });
