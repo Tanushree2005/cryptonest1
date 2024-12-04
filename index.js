@@ -4,30 +4,10 @@ const app = express();
 const mysql = require('mysql2');
 const cors = require('cors');
 const { encrypt, decrypt } = require("./EncryptionHandler.js");
-//const fs = require('fs');
-//const path = require('path');
-
-//const sslPath = process.env.SSL_CA_PATH; // Get the SSL certificate path from the environment variable
-
-/*if (!sslPath) {
-    console.error('SSL_CA_PATH is not defined in the environment');
-    process.exit(1);
-}
-
-console.log('Using SSL certificate from:', sslPath);
-
-let sslCertificate;
-try {
-    const absolutePath = path.resolve(__dirname, sslPath);
-    sslCertificate = fs.readFileSync(absolutePath);
-    console.log('SSL Certificate loaded successfully');
-} catch (error) {
-    console.error('Error reading SSL certificate:', error);
-    process.exit(1);
-}
-*/
 app.use(cors({
-    origin: 'https://cryptonest1.netlify.app' 
+    origin: 'https://cryptonest1.netlify.app',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+    allowedHeaders: ['Content-Type', 'Authorization'] 
 }));
 app.use(express.json());
 
