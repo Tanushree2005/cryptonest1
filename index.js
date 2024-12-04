@@ -1,9 +1,10 @@
 const express = require('express'); // to call our express module
 const app = express();
 const PORT =3003;
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const cors = require('cors');
 const {encrypt,decrypt}=require("./EncryptionHandler.js");
+const fs = require('fs');
 app.use(cors(
 ));
 app.use(express.json());
@@ -11,9 +12,13 @@ app.use(express.json());
 const db = mysql.createConnection({
     user: 'avnadmin',
     host: 'mysql-19e6ba64-mandavillitanushree-7351.e.aivencloud.com',
-    password: 'AVNS_7zgBuYFAJBS1yemvLyt',
+    password: 'AVNS_nJ5gBEb9Ya4jApdeAdd',
     database: 'defaultdb',
+    port:15844,
     connectTimeout: 10000,
+    ssl: {
+        ca: fs.readFileSync('C:/Users/asus 230820/OneDrive/ドキュメント/webdev/Password Manager/server/ca.pem') // Replace with actual path
+    }
 });
 
 // Check MySQL connection
