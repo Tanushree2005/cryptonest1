@@ -1,61 +1,69 @@
-const express = require('express'); // to call our express module
+const express = require('express');
 const app = express();
-const PORT =3003;
+const PORT = process.env.PORT || 3003;
 const mysql = require('mysql2');
 const cors = require('cors');
-const {encrypt,decrypt}=require("./EncryptionHandler.js");
+const { encrypt, decrypt } = require("./EncryptionHandler.js");
 const fs = require('fs');
 require('dotenv').config();
-const path = require('path'); 
-const sslPath = process.env.SSL_CERT_PATH;
-app.use(cors(
-));
-app.use(express.json());
+const path = require('path');
 
+const sslPath = process.env.SSL_CERT_PATH;
+
+if (!sslPath) {
+    console.error('SSL_CERT_PATH is not defined in the environment');
+    process.exit(1);
+}
+
+console.log('Using SSL certificate from:', sslPath);
+
+let sslCertificate;
 try {
+    sslCertificate = fs.readFileSync(path.join(__dirname, sslPath));
     console.log('SSL Certificate loaded successfully');
 } catch (error) {
     console.error('Error reading SSL certificate:', error);
+    process.exit(1);
 }
-// Create MySQL connection
+
+app.use(cors());
+app.use(express.json());
+
 const db = mysql.createConnection({
     user: 'avnadmin',
     host: 'mysql-19e6ba64-mandavillitanushree-7351.e.aivencloud.com',
     password: 'AVNS_nJ5gBEb9Ya4jApdeAdd',
     database: 'defaultdb',
-    port:15844,
+    port: 15844,
     connectTimeout: 20000,
-    ssl:{  ca: fs.readFileSync(path.join(__dirname, process.env.SSL_CERT_PATH)),
-        rejectUnauthorized: false, 
-}
+    ssl: {
+        ca: sslCertificate,
+        rejectUnauthorized: false,
+    },
 });
 
-// Check MySQL connection
 db.connect((err) => {
     if (err) {
-        console.log('Error connecting to MySQL: ', err);
+        console.log('Error connecting to MySQL:', err);
     } else {
         console.log('Connected to MySQL');
     }
 });
 
 app.post('/addpassword', (req, res) => {
-    console.log("Request Body:", req.body); // Log the received body
     const { password, title } = req.body;
-    const hashedPassword=encrypt(password);
-    console.log('Received password:', password);  // Log the received data
-    console.log('Received title:', title);
+    const hashedPassword = encrypt(password);
 
     if (!password || !title) {
         return res.status(400).send("Password and title are required.");
     }
 
     db.query(
-        "INSERT INTO passwords (passwords, title,iv) VALUES (?, ?,?)",
-        [hashedPassword.password, title,hashedPassword.iv],
+        "INSERT INTO passwords (passwords, title, iv) VALUES (?, ?, ?)",
+        [hashedPassword.password, title, hashedPassword.iv],
         (err, result) => {
             if (err) {
-                console.log('Database Error:', err);  // Log the database error
+                console.log('Database Error:', err);
                 return res.status(500).send("Error inserting password.");
             } else {
                 res.status(200).send("Password added successfully.");
@@ -63,12 +71,12 @@ app.post('/addpassword', (req, res) => {
         }
     );
 });
+
 app.get('/showpassword', (req, res) => {
     db.query("SELECT * FROM passwords;", (err, result) => {
         if (err) {
             console.log(err);
         } else {
-            // Log the result to see if password and iv are being returned correctly
             console.log('Fetched passwords:', result);
             res.send(result);
         }
@@ -78,24 +86,20 @@ app.get('/showpassword', (req, res) => {
 app.post('/decryptpass', (req, res) => {
     try {
         const { password, iv } = req.body;
-        console.log('Received decryption request:', req.body); // Log request for debugging
-        
-        // Validate inputs
+
         if (!password || !iv) {
             return res.status(400).send('Invalid request: Missing password or IV.');
         }
 
-        // Decrypt the password
         const decryptedPassword = decrypt({ password, iv });
 
         res.status(200).send({ decryptedPassword });
     } catch (error) {
-        console.error('Decryption error:', error); // Log detailed error
+        console.error('Decryption error:', error);
         res.status(500).send('An error occurred while decrypting the password.');
     }
 });
 
-// Start server
-app.listen(process.env.PORT || PORT, () => {
-    console.log(`The server is running on port ${PORT}`); // to check if the server is running
+app.listen(PORT, () => {
+    console.log(`The server is running on port ${PORT}`);
 });
