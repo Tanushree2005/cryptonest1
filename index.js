@@ -1,14 +1,11 @@
 const express = require('express'); // to call our express module
 const app = express();
-const PORT = process.env.PORT || 3003;
+const PORT =3003;
 const mysql = require('mysql');
 const cors = require('cors');
 const {encrypt,decrypt}=require("./EncryptionHandler.js");
 app.use(cors());
-
 app.use(express.json());
-
-
 // Create MySQL connection
 const db = mysql.createConnection({
     user: 'root',
