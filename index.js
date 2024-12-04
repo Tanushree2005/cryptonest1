@@ -3,6 +3,7 @@ const express = require('express');
 const app = express();
 const mysql = require('mysql2');
 const cors = require('cors');
+const PORT = process.env.PORT || 3003;
 const { encrypt, decrypt } = require("./EncryptionHandler.js");
 app.use(cors({
     origin: 'https://cryptonest1.netlify.app',
