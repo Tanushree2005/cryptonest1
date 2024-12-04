@@ -5,9 +5,19 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const {encrypt,decrypt}=require("./EncryptionHandler.js");
 const fs = require('fs');
+require('dotenv').config();
+const path = require('path'); 
+const sslPath = path.join(__dirname, process.env.SSL_CERT_PATH); 
 app.use(cors(
 ));
 app.use(express.json());
+let sslCa;
+try {
+    sslCa = fs.readFileSync(sslPath);
+    console.log('SSL Certificate loaded successfully');
+} catch (error) {
+    console.error('Error reading SSL certificate:', error);
+}
 // Create MySQL connection
 const db = mysql.createConnection({
     user: 'avnadmin',
@@ -15,10 +25,8 @@ const db = mysql.createConnection({
     password: 'AVNS_nJ5gBEb9Ya4jApdeAdd',
     database: 'defaultdb',
     port:15844,
-    connectTimeout: 10000,
-    ssl: {
-        ca: fs.readFileSync('../ca.pem')
-    }
+    connectTimeout: 20000,
+    ssl: sslCa ? { ca: sslCa } : null, 
 });
 
 // Check MySQL connection
