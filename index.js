@@ -1,17 +1,16 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
-const PORT = process.env.PORT || 3003;
 const mysql = require('mysql2');
 const cors = require('cors');
 const { encrypt, decrypt } = require("./EncryptionHandler.js");
 const fs = require('fs');
 const path = require('path');
 
-// Retrieve the certificate path from environment variable
-const sslPath = process.env.SSL_CA_PATH || './certs/ca.pem'; // Default to './certs/ca.pem' if not defined in environment
+const sslPath = process.env.SSL_CA_PATH; // Get the SSL certificate path from the environment variable
 
 if (!sslPath) {
-    console.error('SSL_CERT_PATH is not defined in the environment');
+    console.error('SSL_CA_PATH is not defined in the environment');
     process.exit(1);
 }
 
@@ -19,8 +18,8 @@ console.log('Using SSL certificate from:', sslPath);
 
 let sslCertificate;
 try {
-    // Read SSL certificate from the specified path
-    sslCertificate = fs.readFileSync(path.resolve(__dirname, sslPath));
+    const absolutePath = path.resolve(__dirname, sslPath);
+    sslCertificate = fs.readFileSync(absolutePath);
     console.log('SSL Certificate loaded successfully');
 } catch (error) {
     console.error('Error reading SSL certificate:', error);
@@ -30,21 +29,20 @@ try {
 app.use(cors());
 app.use(express.json());
 
-// Create MySQL connection
+// MySQL connection config using environment variables
 const db = mysql.createConnection({
-    user: 'avnadmin',
-    host: 'mysql-19e6ba64-mandavillitanushree-7351.e.aivencloud.com',
-    password: 'AVNS_nJ5gBEb9Ya4jApdeAdd',
-    database: 'defaultdb',
-    port: 15844,
-    connectTimeout: 20000,
+        user: 'avnadmin',
+        host: 'mysql-19e6ba64-mandavillitanushree-7351.e.aivencloud.com',
+        password: 'AVNS_nJ5gBEb9Ya4jApdeAdd',
+        database: 'defaultdb',
+        port:15844,
+        connectTimeout: 10000,
     ssl: {
         ca: sslCertificate,
         rejectUnauthorized: false,
     },
 });
 
-// Check MySQL connection
 db.connect((err) => {
     if (err) {
         console.log('Error connecting to MySQL:', err);
@@ -80,7 +78,6 @@ app.get('/showpassword', (req, res) => {
         if (err) {
             console.log(err);
         } else {
-            console.log('Fetched passwords:', result);
             res.send(result);
         }
     });
@@ -103,7 +100,6 @@ app.post('/decryptpass', (req, res) => {
     }
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`The server is running on port ${PORT}`);
+app.listen(process.env.PORT || 3003, () => {
+    console.log(`Server running on port ${process.env.PORT || 3003}`);
 });
