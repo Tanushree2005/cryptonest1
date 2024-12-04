@@ -17,7 +17,7 @@ const db = mysql.createConnection({
     port:15844,
     connectTimeout: 10000,
     ssl: {
-        ca: fs.readFileSync('C:/Users/asus 230820/OneDrive/ドキュメント/webdev/Password Manager/server/ca.pem') // Replace with actual path
+        ca: fs.readFileSync('../ca.pem')
     }
 });
 
