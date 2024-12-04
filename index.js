@@ -8,7 +8,7 @@ const fs = require('fs');
 require('dotenv').config();
 const path = require('path');
 
-// Get the SSL certificate path from environment variable
+// Retrieve the certificate path from environment variable
 const sslPath = process.env.SSL_CA_PATH;
 
 if (!sslPath) {
@@ -16,16 +16,12 @@ if (!sslPath) {
     process.exit(1);
 }
 
-// Initialize the SSL certificate
+console.log('Using SSL certificate from:', sslPath);
+
 let sslCertificate;
 try {
-    const resolvedPath = path.join(__dirname, sslPath);
-    // Check if the certificate file exists
-    if (!fs.existsSync(resolvedPath)) {
-        console.error('SSL certificate not found at path:', resolvedPath);
-        process.exit(1);
-    }
-    sslCertificate = fs.readFileSync(resolvedPath);
+    // Read SSL certificate from the specified path
+    sslCertificate = fs.readFileSync(sslPath);
     console.log('SSL Certificate loaded successfully');
 } catch (error) {
     console.error('Error reading SSL certificate:', error);
@@ -35,7 +31,7 @@ try {
 app.use(cors());
 app.use(express.json());
 
-// MySQL connection setup with SSL
+// Create MySQL connection
 const db = mysql.createConnection({
     user: 'avnadmin',
     host: 'mysql-19e6ba64-mandavillitanushree-7351.e.aivencloud.com',
@@ -44,12 +40,12 @@ const db = mysql.createConnection({
     port: 15844,
     connectTimeout: 20000,
     ssl: {
-        ca: sslCertificate, // Using the loaded SSL certificate
-        rejectUnauthorized: false, // This can be true if your MySQL server supports verified certificates
+        ca: sslCertificate,
+        rejectUnauthorized: false,
     },
 });
 
-// Connect to MySQL
+// Check MySQL connection
 db.connect((err) => {
     if (err) {
         console.log('Error connecting to MySQL:', err);
@@ -58,7 +54,6 @@ db.connect((err) => {
     }
 });
 
-// API to add a password
 app.post('/addpassword', (req, res) => {
     const { password, title } = req.body;
     const hashedPassword = encrypt(password);
@@ -81,7 +76,6 @@ app.post('/addpassword', (req, res) => {
     );
 });
 
-// API to show passwords
 app.get('/showpassword', (req, res) => {
     db.query("SELECT * FROM passwords;", (err, result) => {
         if (err) {
@@ -93,7 +87,6 @@ app.get('/showpassword', (req, res) => {
     });
 });
 
-// API to decrypt a password
 app.post('/decryptpass', (req, res) => {
     try {
         const { password, iv } = req.body;
@@ -111,7 +104,7 @@ app.post('/decryptpass', (req, res) => {
     }
 });
 
-// Start the server
+// Start server
 app.listen(PORT, () => {
     console.log(`The server is running on port ${PORT}`);
 });
