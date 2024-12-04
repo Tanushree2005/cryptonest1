@@ -4,12 +4,12 @@ const app = express();
 const mysql = require('mysql2');
 const cors = require('cors');
 const { encrypt, decrypt } = require("./EncryptionHandler.js");
-const fs = require('fs');
-const path = require('path');
+//const fs = require('fs');
+//const path = require('path');
 
-const sslPath = process.env.SSL_CA_PATH; // Get the SSL certificate path from the environment variable
+//const sslPath = process.env.SSL_CA_PATH; // Get the SSL certificate path from the environment variable
 
-if (!sslPath) {
+/*if (!sslPath) {
     console.error('SSL_CA_PATH is not defined in the environment');
     process.exit(1);
 }
@@ -25,7 +25,7 @@ try {
     console.error('Error reading SSL certificate:', error);
     process.exit(1);
 }
-
+*/
 app.use(cors());
 app.use(express.json());
 
@@ -37,10 +37,10 @@ const db = mysql.createConnection({
         database: 'defaultdb',
         port:15844,
         connectTimeout: 10000,
-    ssl: {
+   /* ssl: {
         ca: sslCertificate,
         rejectUnauthorized: false,
-    },
+    }, */
 });
 
 db.connect((err) => {
