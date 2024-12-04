@@ -26,7 +26,9 @@ try {
     process.exit(1);
 }
 */
-app.use(cors());
+app.use(cors({
+    origin: 'https://cryptonest1.netlify.app' 
+}));
 app.use(express.json());
 
 // MySQL connection config using environment variables
