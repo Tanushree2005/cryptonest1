@@ -5,11 +5,10 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const { encrypt, decrypt } = require("./EncryptionHandler.js");
 const fs = require('fs');
-require('dotenv').config();
 const path = require('path');
 
 // Retrieve the certificate path from environment variable
-const sslPath = process.env.SSL_CA_PATH;
+const sslPath = process.env.SSL_CA_PATH || './certs/ca.pem'; // Default to './certs/ca.pem' if not defined in environment
 
 if (!sslPath) {
     console.error('SSL_CERT_PATH is not defined in the environment');
@@ -21,7 +20,7 @@ console.log('Using SSL certificate from:', sslPath);
 let sslCertificate;
 try {
     // Read SSL certificate from the specified path
-    sslCertificate = fs.readFileSync(sslPath);
+    sslCertificate = fs.readFileSync(path.resolve(__dirname, sslPath));
     console.log('SSL Certificate loaded successfully');
 } catch (error) {
     console.error('Error reading SSL certificate:', error);
